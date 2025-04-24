@@ -12,7 +12,7 @@ const Navigation = ({ account }) => {
         height="40"
         className="d-inline-block align-top mx-3"
       />
-      <Navbar.Brand href="#">Dapp University Template</Navbar.Brand>
+      <Navbar.Brand href="#">DAO Mission Control</Navbar.Brand>
       <Navbar.Collapse className="justify-content-end">
         <Navbar.Text>
           {account}
@@ -21,5 +21,3 @@ const Navigation = ({ account }) => {
     </Navbar>
   );
 }
-
-export default Navigation;

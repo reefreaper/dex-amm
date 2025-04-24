@@ -45,7 +45,7 @@ function App() {
     <Container>
       <Navigation account={account} />
 
-      <h1 className='my-4 text-center'>React Hardhat Template</h1>
+      <h1 className='my-4 text-center'>DAO Operations</h1>
 
       {isLoading ? (
         <Loading />
