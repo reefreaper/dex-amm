@@ -21,3 +21,5 @@ const Navigation = ({ account }) => {
     </Navbar>
   );
 }
+
+export default Navigation;

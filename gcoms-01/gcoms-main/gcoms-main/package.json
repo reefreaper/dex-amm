@@ -1,0 +1,50 @@
+{
+  "name": "geocities-0",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.4",
+    "@openzeppelin/contracts": "^4.8.0",
+    "@tailwindcss/vite": "^4.1.7",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^13.5.0",
+    "buffer": "^6.0.3",
+    "clsx": "^2.1.1",
+    "dotenv": "^16.3.1",
+    "framer-motion": "^12.15.0",
+    "gh": "^1.13.9",
+    "keccak256": "^1.0.6",
+    "lucide-react": "^0.511.0",
+    "merkletreejs": "^0.5.2",
+    "node": "^22.16.0",
+    "react": "^19.1.0",
+    "react-countdown": "^2.3.2",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.1",
+    "react-scripts": "^3.0.1",
+    "sqlite3": "^5.1.7",
+    "tailwind": "^4.0.0",
+    "tailwindcss": "^4.1.7",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "hardhat": "^2.24.1",
+    "vite": "^6.3.5"
+  }
+}
