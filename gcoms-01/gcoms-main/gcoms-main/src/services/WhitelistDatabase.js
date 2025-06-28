@@ -12,20 +12,83 @@ class WhitelistDatabase {
     // No SQLite initialization needed - we'll use localStorage
     console.log('Using browser localStorage for whitelist storage');
     
-    // Initialize whitelist storage if it doesn't exist
-    if (!localStorage.getItem('whitelistedAddresses')) {
-      localStorage.setItem('whitelistedAddresses', JSON.stringify([]));
+    try {
+      // Initialize whitelist storage if it doesn't exist or is invalid
+      const storedAddresses = localStorage.getItem('whitelistedAddresses');
+      if (!storedAddresses) {
+        console.log('Initializing empty whitelist in localStorage');
+        localStorage.setItem('whitelistedAddresses', JSON.stringify([]));
+      } else {
+        // Validate the stored data
+        try {
+          const parsed = JSON.parse(storedAddresses);
+          if (!Array.isArray(parsed)) {
+            console.warn('Invalid whitelist data format, reinitializing');
+            localStorage.setItem('whitelistedAddresses', JSON.stringify([]));
+          } else {
+            console.log(`Found ${parsed.length} addresses in whitelist`);
+          }
+        } catch (e) {
+          console.error('Error parsing whitelist data, reinitializing', e);
+          localStorage.setItem('whitelistedAddresses', JSON.stringify([]));
+        }
+      }
+      
+      // Initialize whitelist requests if they don't exist
+      if (!localStorage.getItem('whitelistRequests')) {
+        localStorage.setItem('whitelistRequests', JSON.stringify([]));
+      }
+    } catch (error) {
+      console.error('Error initializing localStorage:', error);
+      // Create in-memory fallback if localStorage is not available
+      this._memoryFallback = {
+        whitelistedAddresses: [],
+        whitelistRequests: []
+      };
+      console.warn('Using in-memory fallback for whitelist storage');
     }
   }
 
   getWhitelistedAddresses() {
     return new Promise((resolve) => {
       try {
-        const addresses = JSON.parse(localStorage.getItem('whitelistedAddresses') || '[]');
-        console.log("Retrieved addresses from localStorage:", addresses);
+        let addresses;
+        
+        // Try to get from localStorage
+        const storedData = localStorage.getItem('whitelistedAddresses');
+        console.log('Raw whitelist data from localStorage:', storedData);
+        
+        if (storedData) {
+          addresses = JSON.parse(storedData);
+          if (!Array.isArray(addresses)) {
+            console.warn('Invalid whitelist data format, using empty array');
+            addresses = [];
+          }
+        } else {
+          console.warn('No whitelist data found in localStorage, using empty array');
+          addresses = [];
+        }
+        
+        // If using memory fallback, use that instead
+        if (this._memoryFallback) {
+          addresses = this._memoryFallback.whitelistedAddresses;
+        }
+        
+        console.log("Retrieved addresses from storage:", addresses);
+        
+        // If connected to a wallet, automatically add the current account
+        if (window.ethereum && window.ethereum.selectedAddress) {
+          const currentAccount = window.ethereum.selectedAddress;
+          if (currentAccount && !addresses.map(a => a.toLowerCase()).includes(currentAccount.toLowerCase())) {
+            console.log(`Adding current account ${currentAccount} to whitelist`);
+            this.addToWhitelist(currentAccount);
+            addresses.push(currentAccount);
+          }
+        }
+        
         resolve(addresses);
       } catch (error) {
-        console.error('Error getting addresses from localStorage:', error);
+        console.error('Error getting addresses from storage:', error);
         resolve([]);
       }
     });

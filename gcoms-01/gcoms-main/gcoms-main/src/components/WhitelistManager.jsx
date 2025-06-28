@@ -472,29 +472,78 @@ const WhitelistManager = ({ provider, nft, account, setIsLoading }) => {
         }
     }, [nft, account, checkOwnership])
     
+    // Add this function after the loadWhitelist function
+    const initializeWhitelistIfEmpty = useCallback(async () => {
+        try {
+            // Get current whitelist
+            const addresses = await WhitelistDatabase.getWhitelistedAddresses();
+            
+            // If whitelist is empty and user is owner, add the owner account
+            if (addresses.length === 0 && account) {
+                console.log("Whitelist is empty, checking if current account is owner...");
+                
+                // Check if user is owner
+                if (nft) {
+                    const owner = await nft.owner();
+                    const isOwnerAccount = owner.toLowerCase() === account.toLowerCase();
+                    
+                    if (isOwnerAccount) {
+                        console.log("Current account is owner, adding to whitelist");
+                        await WhitelistDatabase.addToWhitelist(account);
+                        
+                        // Generate new Merkle root
+                        const result = await WhitelistDatabase.generateMerkleRoot();
+                        if (result && result.root) {
+                            // Update contract Merkle root
+                            const signer = await provider.getSigner();
+                            try {
+                                const transaction = await nft.connect(signer).setMerkleRoot(result.root, {
+                                    gasLimit: 200000
+                                });
+                                await transaction.wait();
+                                console.log("Contract Merkle root updated successfully");
+                                setMerkleRoot(result.root);
+                                
+                                // Reload whitelist
+                                await loadWhitelist();
+                            } catch (error) {
+                                console.error("Error updating contract Merkle root:", error);
+                            }
+                        }
+                    } else {
+                        console.log("Current account is not owner, cannot initialize whitelist");
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error initializing whitelist:", error);
+        }
+    }, [nft, account, provider, loadWhitelist]);
+
     // Load whitelist and merkle root when component mounts
     useEffect(() => {
         const loadData = async () => {
-            await loadWhitelist()
-            await loadPendingRequests() // Add this line
+            await loadWhitelist();
+            await loadPendingRequests();
+            await initializeWhitelistIfEmpty(); // Add this line
             
             // Get current merkle root from contract
             if (nft) {
                 try {
-                    const root = await nft.merkleRoot()
-                    setMerkleRoot(root)
+                    const root = await nft.merkleRoot();
+                    setMerkleRoot(root);
                     
                     // Get whitelist requirement status
-                    const whitelistRequired = await nft.whitelistOnly()
-                    setWhitelistOnly(whitelistRequired)
+                    const whitelistRequired = await nft.whitelistOnly();
+                    setWhitelistOnly(whitelistRequired);
                 } catch (error) {
-                    console.error("Error getting contract data:", error)
+                    console.error("Error getting contract data:", error);
                 }
             }
-        }
+        };
         
-        loadData()
-    }, [nft, loadWhitelist, loadPendingRequests]) // Add loadPendingRequests to dependencies
+        loadData();
+    }, [nft, loadWhitelist, loadPendingRequests, initializeWhitelistIfEmpty]); // Add initializeWhitelistIfEmpty to dependencies
     
     // Close database connection when component unmounts
     useEffect(() => {
