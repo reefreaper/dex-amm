@@ -19,16 +19,23 @@ describe('AMM', () => {
     token2 = await Token.deploy('USD Token', 'USD', '1000000') // 1 Million Tokens
 
     const AMM = await ethers.getContractFactory('AMM')
-    amm = await AMM.deploy()
+    amm = await AMM.deploy(token1.address, token2.address)
 
   })
 
   describe('Deployment', () => {
 
     it('has an address', async () => {
-      expect(await amm.name).to.not.equal(0x0)
+      expect(await amm.address).to.not.equal(0x0)
     })
 
+    it('returns token1', async () => {
+      expect(await amm.token1()).to.equal(token1.address)
+    })
+  
+    it('returns token2', async () => {
+      expect(await amm.token2()).to.equal(token2.address)
+    })
   
 
   })
