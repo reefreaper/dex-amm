@@ -8,16 +8,33 @@ const tokens = (n) => {
 const ether = tokens
 
 describe('AMM', () => {
-  let accounts, deployer, token1, token2, amm
+  let accounts,
+      deployer,
+      liquidityProvider
+
+  let token1,
+      token2,
+      amm
 
   beforeEach(async () => {
+    // Setup Accounts
     accounts = await ethers.getSigners()
     deployer = accounts[0]
+    liquidityProvider = accounts[1]
 
+    // Deploy Token
     const Token = await ethers.getContractFactory('Token')
     token1 = await Token.deploy('Dapp University', 'DAPP', '1000000') // 1 Million Tokens
     token2 = await Token.deploy('USD Token', 'USD', '1000000') // 1 Million Tokens
 
+    // Send tokens to liquieity provider
+    let transaction = await token1.connect(deployer).transfer(liquidityProvider.address, tokens(100000)) 
+    await transaction.wait()
+
+    transaction = await token2.connect(deployer).transfer(liquidityProvider.address, tokens(100000)) 
+    await transaction.wait()
+
+    // Deploy AMM
     const AMM = await ethers.getContractFactory('AMM')
     amm = await AMM.deploy(token1.address, token2.address)
 
@@ -37,6 +54,25 @@ describe('AMM', () => {
       expect(await amm.token2()).to.equal(token2.address)
     })
   
+
+  })
+
+  describe('Swapping tokens', () => {
+    let amount, transaction, result
+
+    it('facilitates swaps', async () => {
+      // Deployer approves 100k tokens
+      amount = tokens(100000)
+      transaction = await token1.connect(deployer).approve(amm.address, amount)
+      await transaction.wait()
+
+      transaction = await token2.connect(deployer).approve(amm.address, amount)
+      await transaction.wait()
+
+      transaction = await amm.connect(deployer).addLiquidity(amount, amount)
+      await transaction.wait()
+
+    })
 
   })
 
