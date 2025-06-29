@@ -20,8 +20,19 @@ contract AMM {
 
     function addLiquidity(uint256 _token1Amount, uint256 _token2Amount) external {
         // Deposit Tokens
-        token1.transferFrom(msg.sender, address(this), _token1Amount);
-        token2.transferFrom(msg.sender, address(this), _token2Amount);
+        require(
+            token1.transferFrom(msg.sender, address(this), _token1Amount),
+            "failed to transer token 1"
+        );
+
+        require(
+            token2.transferFrom(msg.sender, address(this), _token2Amount),
+            "failed to transer token 2"
+        );
+
+
+//        token1.transferFrom(msg.sender, address(this), _token1Amount);
+//        token2.transferFrom(msg.sender, address(this), _token2Amount);
 
 
         // Issue Shares

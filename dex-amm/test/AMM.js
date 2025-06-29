@@ -69,8 +69,13 @@ describe('AMM', () => {
       transaction = await token2.connect(deployer).approve(amm.address, amount)
       await transaction.wait()
 
+      // Deployer adds liquidity
       transaction = await amm.connect(deployer).addLiquidity(amount, amount)
       await transaction.wait()
+
+      // Check AMM receives
+      expect(await token1.balanceOf(amm.address)).to.equal(amount)
+      expect(await token2.balanceOf(amm.address)).to.equal(amount)
 
     })
 
