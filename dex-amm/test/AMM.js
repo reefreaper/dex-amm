@@ -77,6 +77,11 @@ describe('AMM', () => {
       expect(await token1.balanceOf(amm.address)).to.equal(amount)
       expect(await token2.balanceOf(amm.address)).to.equal(amount)
 
+      expect(await amm.token1Balance()).to.equal(amount)
+      expect(await amm.token2Balance()).to.equal(amount)
+
+      //console.log(`K constant: ${await amm.K()}`)
+      console.log(await amm.K())
     })
 
   })
