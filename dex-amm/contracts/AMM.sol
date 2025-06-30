@@ -16,7 +16,11 @@ contract AMM {
     uint256 public token1Balance;
     uint256 public token2Balance;
     uint256 public K;
-    //uint256 public totalShares;
+
+    // Total shares in circulation
+    uint256 public totalShares;
+    mapping(address => uint256) public shares;
+    uint256 constant PRECESION = 10**18;
 
     constructor(Token _token1, Token _token2) {
         token1 = _token1;
@@ -35,16 +39,29 @@ contract AMM {
             "failed to transer token 2"
         );
 
-
-
-        // Issue Shares
-
         // Manage Pool
         token1Balance += _token1Amount;
         token2Balance += _token2Amount;
 
         // Set K for constant during trades
         K = token1Balance * token2Balance;
+
+
+        // Issue Shares
+        uint256 share;
+
+        // If firtst deposit, issue new Shares 100% of pool
+        if (totalShares == 0) {
+            //share = _token1Amount + _token2Amount;
+            share = 100 * PRECESION;
+        } else {
+            //share = (totalShares * (_token1Amount + _token2Amount)) / (token1Balance + token2Balance);
+        }
+
+        // Update AMM state
+        totalShares += share;
+        shares[msg.sender] += share;
+
     }
 
 }

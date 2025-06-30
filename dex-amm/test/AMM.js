@@ -82,6 +82,10 @@ describe('AMM', () => {
 
       //console.log(`K constant: ${await amm.K()}`)
       console.log(await amm.K())
+
+      // Check deployer has 100 shares
+      expect(await amm.shares(deployer.address)).to.equal(tokens(100))
+
     })
 
   })
