@@ -39,13 +39,6 @@ contract AMM {
             "failed to transer token 2"
         );
 
-        // Manage Pool
-        token1Balance += _token1Amount;
-        token2Balance += _token2Amount;
-
-        // Set K for constant during trades
-        K = token1Balance * token2Balance;
-
 
         // Issue Shares
         uint256 share;
@@ -55,8 +48,19 @@ contract AMM {
             //share = _token1Amount + _token2Amount;
             share = 100 * PRECESION;
         } else {
-            //share = (totalShares * (_token1Amount + _token2Amount)) / (token1Balance + token2Balance);
+            uint256 share1 = (totalShares * _token1Amount) / token1Balance;
+            uint256 share2 = (totalShares * _token2Amount) / token2Balance;
+            require(
+                (share1 / 10**3) == (share2 / 10**3),
+                "must provide equal token amounts");
+            share = share1;
         }
+
+        // Manage Pool
+        token1Balance += _token1Amount;
+        token2Balance += _token2Amount;
+        // Set K for constant during trades
+        K = token1Balance * token2Balance;
 
         // Update AMM state
         totalShares += share;
